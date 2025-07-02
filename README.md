@@ -50,27 +50,92 @@ html_basic/
   - **이벤트 처리 및 DOM 조작**: 이벤트 발생 시 `innerHTML`, `textContent` 등을 사용하여 HTML 콘텐츠 변경
   - **이벤트 기본 동작 방지**: `event.preventDefault()`를 사용하여 폼 제출 시 페이지 새로고침 방지
 
-예를 들어, 이 프로젝트에서 제출 버튼을 누르면 우측에 결과가 나타나는 것은 JavaScript에서 DOM 객체를 이용하기 때문입니다:
+#### DOM 객체 활용 원리 상세 설명
+
+이 프로젝트에서 제출 버튼을 누르면 우측에 결과가 나타나는 과정은 다음과 같은 DOM 객체 활용 원리를 따릅니다:
+
+1. **DOM 트리 구성**: 브라우저가 HTML을 파싱하여 DOM 트리를 구성합니다. 각 HTML 요소는 DOM 노드가 됩니다.
+2. **DOM 객체 참조**: JavaScript에서 `document.getElementById()`와 같은 메서드로 DOM 노드에 접근합니다.
+3. **이벤트 감지**: 사용자가 제출 버튼을 클릭하면 `submit` 이벤트가 발생합니다.
+4. **이벤트 처리**: 등록된 이벤트 리스너가 이벤트를 감지하고 콜백 함수를 실행합니다.
+5. **DOM 조작**: 콜백 함수 내에서 DOM 객체의 속성이나 내용을 변경하여 화면에 결과를 표시합니다.
+
+#### 실제 코드 흐름 설명
 
 ```javascript
-// DOM 객체 참조 획득
-const userForm = document.getElementById('user-form');
-const resultDisplay = document.getElementById('result-display');
+// 1. DOM 객체 참조 획득 - HTML 요소를 JavaScript 변수에 할당
+const userForm = document.getElementById('user-form'); // 폼 요소 참조
+const nameInput = document.getElementById('name'); // 이름 입력 필드
+const ageInput = document.getElementById('age'); // 나이 입력 필드
+const colorSelect = document.getElementById('color'); // 색상 선택 필드
+const resultDisplay = document.getElementById('result-display'); // 결과 표시 영역
 
-// 이벤트 리스너 등록
+// 2. 이벤트 리스너 등록 - 폼 제출 이벤트 감지
 userForm.addEventListener('submit', function(event) {
-    // 기본 동작 방지
+    // 3. 기본 동작 방지 - 페이지 새로고침 방지
     event.preventDefault();
     
-    // 입력값 처리 및 결과 표시
+    // 4. 입력값 가져오기
+    const name = nameInput.value.trim();
+    const age = ageInput.value.trim();
+    const color = colorSelect.value;
+    
+    // 5. 입력값 검증
+    if (!name || !age) {
+        alert('이름과 나이를 모두 입력해주세요.');
+        return;
+    }
+    
+    // 6. 결과 표시 함수 호출
     displayResult(name, age, color);
 });
 
-// DOM 조작으로 결과 표시
+// 7. DOM 조작으로 결과 표시 함수
 function displayResult(name, age, color) {
-    resultDisplay.innerHTML = `결과 HTML 내용`;
+    // 8. HTML 템플릿 생성
+    const resultHTML = `
+        <h3>입력 정보 결과</h3>
+        <p><strong>이름:</strong> ${name}</p>
+        <p><strong>나이:</strong> ${age}세</p>
+        <p>
+            <strong>좋아하는 색상:</strong> 
+            <span class="color-display" style="background-color: ${color};"></span>
+            ${getColorName(color)}
+        </p>
+    `;
+    
+    // 9. DOM 요소 내용 변경 - innerHTML 속성 사용
+    resultDisplay.innerHTML = resultHTML;
+    
+    // 10. 스타일 속성 변경 - CSS 속성 직접 조작
+    resultDisplay.style.borderColor = color;
+    
+    // 11. 클래스 조작 - 애니메이션 효과 추가
+    resultDisplay.classList.add('fade-in');
+    
+    // 12. 타이머 설정 - 일정 시간 후 클래스 제거
+    setTimeout(() => {
+        resultDisplay.classList.remove('fade-in');
+    }, 500);
 }
 ```
+
+#### DOM 객체 활용의 장점
+
+1. **동적 UI 업데이트**: 페이지 전체를 새로고침하지 않고 특정 부분만 업데이트할 수 있습니다.
+2. **사용자 경험 향상**: 빠른 응답성과 부드러운 전환 효과로 사용자 경험이 향상됩니다.
+3. **서버 부하 감소**: 필요한 데이터만 주고받아 서버 부하를 줄일 수 있습니다.
+4. **상태 유지**: 페이지 새로고침 없이 애플리케이션 상태를 유지할 수 있습니다.
+
+#### DOM 조작 방식 비교
+
+| 방식 | 코드 예시 | 용도 |
+|------|----------|------|
+| `innerHTML` | `element.innerHTML = '<p>새 내용</p>'` | HTML 마크업을 포함한 내용 변경 |
+| `textContent` | `element.textContent = '새 텍스트'` | 텍스트만 변경 (보안에 더 안전) |
+| `appendChild` | `element.appendChild(newElement)` | 새 요소 추가 |
+| `classList` | `element.classList.add('highlight')` | CSS 클래스 조작 |
+| `style` | `element.style.color = 'red'` | 인라인 스타일 직접 조작 |
 
 이러한 DOM 조작 기능은 JavaScript의 핵심 기능 중 하나로, 정적인 HTML 페이지를 동적으로 변경할 수 있게 해줍니다. 이를 통해 페이지를 새로고침하지 않고도 사용자와 상호작용하는 웹 애플리케이션을 만들 수 있습니다.
 
